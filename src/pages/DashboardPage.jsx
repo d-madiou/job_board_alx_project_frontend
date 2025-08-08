@@ -5,58 +5,70 @@ import api from '../utils/api';
 import {
   UserIcon,
   BriefcaseIcon,
-  EyeIcon,
-  HeartIcon,
   CalendarIcon,
-  DocumentTextIcon,
-  MagnifyingGlassIcon,
-  PencilIcon,
-  ArrowUpTrayIcon,
-  ChevronRightIcon,
   CheckCircleIcon,
   ClockIcon,
   XCircleIcon,
-  MapPinIcon,
-  CurrencyDollarIcon,
-  Bars3Icon
+  Bars3Icon,
+  PencilIcon,
+  ArrowUpTrayIcon,
+  MagnifyingGlassIcon,
+  ChevronRightIcon
 } from '@heroicons/react/24/outline';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const [dashboardData, setDashboardData] = useState({
-  applications: [],
-  profileViews: 0,
-  interviewInvites: 0,
-  recommendedJobs: []
-});
+    applications: [],
+    stats: { total: 0, pending: 0, interview: 0, accepted: 0, rejected: 0 }
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const sidebarItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: UserIcon, active: true },
+    { id: 'profile', label: 'Profile', icon: UserIcon },
+    { id: 'applications', label: 'Applications', icon: BriefcaseIcon }
+  ];
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        
-        // Fetch user applications
-        const applicationsResponse = await api.get('/applications/my-applications/');
-        const applications = applicationsResponse.data.results || applicationsResponse.data || [];
-        
-        // Fetch saved jobs
-        // const savedJobsResponse = await api.get('/saved-jobs/');
-        // const savedJobs = savedJobsResponse.data.results || savedJobsResponse.data || [];
-        
-        // Fetch recommended jobs
-        const jobsResponse = await api.get('/jobs/?limit=6');
-        const recommendedJobs = jobsResponse.data.results || jobsResponse.data || [];
-        
+        let applications = [];
+        let stats = { total: 0, pending: 0, interview: 0, accepted: 0, rejected: 0 };
+
+        if (user?.role === 'user') {
+          // Job Seeker: Fetch their applications and stats
+          const [applicationsResponse, statsResponse] = await Promise.all([
+            api.get('/applications/my-applications/'),
+            api.get('/applications/stats/')
+          ]);
+          applications = applicationsResponse.data.results || applicationsResponse.data || [];
+          stats = statsResponse.data || stats;
+        } else if (user?.role === 'employer') {
+          // Employer: Fetch applications for their job postings
+          const applicationsResponse = await api.get('/applications/');
+          applications = applicationsResponse.data.results || applicationsResponse.data || [];
+        } else if (user?.role === 'admin') {
+          // Admin: Fetch all applications
+          const applicationsResponse = await api.get('/applications/');
+          applications = applicationsResponse.data.results || applicationsResponse.data || [];
+          // Calculate stats for admin
+          stats = {
+            total: applications.length,
+            pending: applications.filter(app => app.status === 'pending').length,
+            interview: applications.filter(app => app.status === 'interview').length,
+            accepted: applications.filter(app => app.status === 'accepted').length,
+            rejected: applications.filter(app => app.status === 'rejected').length
+          };
+        }
+
         setDashboardData({
           applications: Array.isArray(applications) ? applications : [],
-          profileViews: Math.floor(Math.random() * 50) + 10,
-          interviewInvites: applications.filter(app => app.status === 'interview').length,
-          recommendedJobs: Array.isArray(recommendedJobs) ? recommendedJobs.slice(0, 6) : []
+          stats
         });
-        
         setLoading(false);
       } catch (err) {
         setError(err.response?.data?.detail || 'Failed to fetch dashboard data');
@@ -65,7 +77,7 @@ const Dashboard = () => {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [user?.role]);
 
   const getStatusColor = (status) => {
     switch (status?.toLowerCase()) {
@@ -97,13 +109,7 @@ const Dashboard = () => {
     }
   };
 
-  const profileCompletion = 75; // Mock data - calculate based on user profile fields
-
-  const sidebarItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: UserIcon, active: true },
-  { id: 'profile', label: 'Profile', icon: UserIcon },
-  { id: 'applications', label: 'Applications', icon: BriefcaseIcon }
-];
+  const profileCompletion = user?.bio && user?.resume_url && user?.profile_pic ? 90 : 50;
 
   if (loading) {
     return (
@@ -164,6 +170,41 @@ const Dashboard = () => {
               </Link>
             ))}
           </nav>
+
+          {/* Quick Actions for Job Seekers */}
+          {user?.role === 'user' && (
+            <div className="mt-8">
+              <h3 className="text-sm font-semibold mb-4" style={{ color: '#B0B0B0' }}>
+                QUICK ACTIONS
+              </h3>
+              <div className="space-y-2">
+                <Link
+                  to="/jobs"
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-white/5"
+                  style={{ color: '#B0B0B0' }}
+                >
+                  <MagnifyingGlassIcon className="h-4 w-4" />
+                  <span className="text-sm">Browse Jobs</span>
+                </Link>
+                <Link
+                  to="/profile"
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-white/5"
+                  style={{ color: '#B0B0B0' }}
+                >
+                  <PencilIcon className="h-4 w-4" />
+                  <span className="text-sm">Update Profile</span>
+                </Link>
+                <Link
+                  to="/resume"
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-white/5"
+                  style={{ color: '#B0B0B0' }}
+                >
+                  <ArrowUpTrayIcon className="h-4 w-4" />
+                  <span className="text-sm">Upload Resume</span>
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -191,105 +232,67 @@ const Dashboard = () => {
               </div>
               <div>
                 <h1 className="text-2xl font-medium" style={{ color: '#FFFFFF' }}>
-                  Welcome back, {user?.first_name}!
+                  Welcome back, {user?.full_name || user?.first_name}!
                 </h1>
                 <p style={{ color: '#B0B0B0' }}>
-                  Here's what's happening with your job search
+                  {user?.role === 'user' ? "Here's what's happening with your job search" :
+                   user?.role === 'employer' ? 'Manage applications for your job postings' :
+                   'Overview of all applications in the system'}
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Dashboard Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            {/* Applications Sent */}
-            <div 
-              className="p-6 rounded-xl transition-all duration-300 hover:transform hover:scale-105 border-2 border-transparent"
-              style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-              onMouseEnter={(e) => e.target.style.borderColor = '#00FF84'}
-              onMouseLeave={(e) => e.target.style.borderColor = 'transparent'}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div 
-                  className="w-12 h-12 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: 'rgba(0, 255, 132, 0.2)' }}
-                >
-                  <BriefcaseIcon className="h-6 w-6" style={{ color: '#00FF84' }} />
+          {/* Stats Cards - Only for Job Seekers and Admins */}
+          {(user?.role === 'user' || user?.role === 'admin') && (
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+              <div 
+                className="p-4 rounded-xl"
+                style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
+              >
+                <div className="text-2xl font-bold mb-1" style={{ color: '#FFFFFF' }}>
+                  {dashboardData.stats.total}
                 </div>
-                <span className="text-2xl font-bold" style={{ color: '#00FF84' }}>
-                  {dashboardData.applications.length}
-                </span>
+                <div className="text-sm" style={{ color: '#B0B0B0' }}>Total</div>
               </div>
-              <h3 className="font-semibold mb-1" style={{ color: '#FFFFFF' }}>Applications Sent</h3>
-              <p className="text-sm" style={{ color: '#B0B0B0' }}>Total applications submitted</p>
-            </div>
-
-            {/* Profile Views */}
-            <div 
-              className="p-6 rounded-xl transition-all duration-300 hover:transform hover:scale-105 border-2 border-transparent"
-              style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-              onMouseEnter={(e) => e.target.style.borderColor = '#FFA500'}
-              onMouseLeave={(e) => e.target.style.borderColor = 'transparent'}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div 
-                  className="w-12 h-12 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: 'rgba(255, 165, 0, 0.2)' }}
-                >
-                  <EyeIcon className="h-6 w-6" style={{ color: '#FFA500' }} />
+              <div 
+                className="p-4 rounded-xl"
+                style={{ backgroundColor: 'rgba(255, 165, 0, 0.1)' }}
+              >
+                <div className="text-2xl font-bold mb-1" style={{ color: '#FFA500' }}>
+                  {dashboardData.stats.pending}
                 </div>
-                <span className="text-2xl font-bold" style={{ color: '#FFA500' }}>
-                  {dashboardData.profileViews}
-                </span>
+                <div className="text-sm" style={{ color: '#B0B0B0' }}>Pending</div>
               </div>
-              <h3 className="font-semibold mb-1" style={{ color: '#FFFFFF' }}>Profile Views</h3>
-              <p className="text-sm" style={{ color: '#B0B0B0' }}>This month</p>
-            </div>
-
-            {/* Saved Jobs */}
-            <div 
-              className="p-6 rounded-xl transition-all duration-300 hover:transform hover:scale-105 border-2 border-transparent"
-              style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-              onMouseEnter={(e) => e.target.style.borderColor = '#FF69B4'}
-              onMouseLeave={(e) => e.target.style.borderColor = 'transparent'}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div 
-                  className="w-12 h-12 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: 'rgba(255, 105, 180, 0.2)' }}
-                >
-                  <HeartIcon className="h-6 w-6" style={{ color: '#FF69B4' }} />
+              <div 
+                className="p-4 rounded-xl"
+                style={{ backgroundColor: 'rgba(0, 255, 132, 0.1)' }}
+              >
+                <div className="text-2xl font-bold mb-1" style={{ color: '#00FF84' }}>
+                  {dashboardData.stats.interview}
                 </div>
-                {/* <span className="text-2xl font-bold" style={{ color: '#FF69B4' }}>
-                  {dashboardData.savedJobs.length}
-                </span> */}
+                <div className="text-sm" style={{ color: '#B0B0B0' }}>Interview</div>
               </div>
-              <h3 className="font-semibold mb-1" style={{ color: '#FFFFFF' }}>Saved Jobs</h3>
-              <p className="text-sm" style={{ color: '#B0B0B0' }}>Jobs you're interested in</p>
-            </div>
-
-            {/* Interview Invites */}
-            <div 
-              className="p-6 rounded-xl transition-all duration-300 hover:transform hover:scale-105 border-2 border-transparent"
-              style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-              onMouseEnter={(e) => e.target.style.borderColor = '#32CD32'}
-              onMouseLeave={(e) => e.target.style.borderColor = 'transparent'}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div 
-                  className="w-12 h-12 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: 'rgba(50, 205, 50, 0.2)' }}
-                >
-                  <CalendarIcon className="h-6 w-6" style={{ color: '#32CD32' }} />
+              <div 
+                className="p-4 rounded-xl"
+                style={{ backgroundColor: 'rgba(50, 205, 50, 0.1)' }}
+              >
+                <div className="text-2xl font-bold mb-1" style={{ color: '#32CD32' }}>
+                  {dashboardData.stats.accepted}
                 </div>
-                <span className="text-2xl font-bold" style={{ color: '#32CD32' }}>
-                  {dashboardData.interviewInvites}
-                </span>
+                <div className="text-sm" style={{ color: '#B0B0B0' }}>Accepted</div>
               </div>
-              <h3 className="font-semibold mb-1" style={{ color: '#FFFFFF' }}>Interview Invites</h3>
-              <p className="text-sm" style={{ color: '#B0B0B0' }}>Pending interviews</p>
+              <div 
+                className="p-4 rounded-xl"
+                style={{ backgroundColor: 'rgba(255, 68, 68, 0.1)' }}
+              >
+                <div className="text-2xl font-bold mb-1" style={{ color: '#FF4444' }}>
+                  {dashboardData.stats.rejected}
+                </div>
+                <div className="text-sm" style={{ color: '#B0B0B0' }}>Rejected</div>
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column */}
@@ -301,7 +304,9 @@ const Dashboard = () => {
               >
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-xl font-semibold" style={{ color: '#FFFFFF' }}>
-                    Recent Applications
+                    {user?.role === 'user' ? 'Recent Applications' :
+                     user?.role === 'employer' ? 'Job Applications' :
+                     'All Applications'}
                   </h2>
                   <Link
                     to="/applications"
@@ -317,15 +322,36 @@ const Dashboard = () => {
                 {dashboardData.applications.length === 0 ? (
                   <div className="text-center py-8">
                     <BriefcaseIcon className="h-12 w-12 mx-auto mb-4" style={{ color: '#B0B0B0' }} />
-                    <p className="mb-2" style={{ color: '#FFFFFF' }}>No applications yet</p>
-                    <p className="text-sm" style={{ color: '#B0B0B0' }}>Start applying to jobs to see your applications here</p>
+                    <p className="mb-2" style={{ color: '#FFFFFF' }}>
+                      {user?.role === 'user' ? 'No applications yet' :
+                       user?.role === 'employer' ? 'No applications for your jobs yet' :
+                       'No applications in the system'}
+                    </p>
+                    <p className="text-sm" style={{ color: '#B0B0B0' }}>
+                      {user?.role === 'user' ? 'Start applying to jobs to see your applications here' :
+                       user?.role === 'employer' ? 'Post a job to receive applications' :
+                       'No applications have been submitted yet'}
+                    </p>
+                    {user?.role === 'user' && (
+                      <Link
+                        to="/jobs"
+                        className="inline-flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200 mt-4"
+                        style={{ backgroundColor: '#00FF84', color: '#000000' }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = '#00E676'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = '#00FF84'}
+                      >
+                        <MagnifyingGlassIcon className="h-5 w-5 mr-2" />
+                        Browse Jobs
+                      </Link>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-4">
                     {dashboardData.applications.slice(0, 5).map((application) => (
                       <div
                         key={application.id}
-                        className="flex items-center justify-between p-4 rounded-lg transition-colors duration-200 hover:bg-white/5"
+                        className="flex items-center justify-between p-4 rounded-lg transition-colors duration-200 hover:bg-white/5 border-l-4"
+                        style={{ borderLeftColor: getStatusColor(application.status) }}
                       >
                         <div className="flex items-center space-x-4">
                           <div 
@@ -341,6 +367,11 @@ const Dashboard = () => {
                             <p className="text-sm" style={{ color: '#B0B0B0' }}>
                               {application.job?.company?.name || 'Company Name'}
                             </p>
+                            {(user?.role === 'employer' || user?.role === 'admin') && application.applicant && (
+                              <p className="text-sm" style={{ color: '#B0B0B0' }}>
+                                Applicant: {application.applicant.full_name || application.applicant.email}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center space-x-4">
@@ -354,146 +385,91 @@ const Dashboard = () => {
                             {getStatusIcon(application.status)}
                             <span className="capitalize">{application.status || 'Pending'}</span>
                           </div>
-                          <ChevronRightIcon className="h-5 w-5" style={{ color: '#B0B0B0' }} />
+                          <Link to={`/applications/${application.id}`}>
+                            <ChevronRightIcon className="h-5 w-5" style={{ color: '#B0B0B0' }} />
+                          </Link>
                         </div>
                       </div>
                     ))}
                   </div>
                 )}
               </div>
-
-              {/* Recommended Jobs */}
-              <div 
-                className="rounded-xl p-6"
-                style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-              >
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold" style={{ color: '#FFFFFF' }}>
-                    Recommended Jobs
-                  </h2>
-                  <Link
-                    to="/jobs"
-                    className="text-sm font-medium transition-colors duration-200"
-                    style={{ color: '#00FF84' }}
-                    onMouseEnter={(e) => e.target.style.color = '#00E676'}
-                    onMouseLeave={(e) => e.target.style.color = '#00FF84'}
-                  >
-                    View All
-                  </Link>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {dashboardData.recommendedJobs.map((job) => (
-                    <div
-                      key={job.id}
-                      className="p-4 rounded-lg transition-all duration-300 hover:transform hover:scale-105 border-2 border-transparent"
-                      style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-                      onMouseEnter={(e) => e.target.style.borderColor = '#00FF84'}
-                      onMouseLeave={(e) => e.target.style.borderColor = 'transparent'}
-                    >
-                      <h3 className="font-medium mb-2" style={{ color: '#FFFFFF' }}>
-                        {job.title}
-                      </h3>
-                      <p className="text-sm mb-2" style={{ color: '#B0B0B0' }}>
-                        {job.company?.name || 'Company Name'}
-                      </p>
-                      <div className="flex items-center text-xs mb-3" style={{ color: '#B0B0B0' }}>
-                        <MapPinIcon className="h-3 w-3 mr-1" />
-                        {job.location || 'Location not specified'}
-                      </div>
-                      {job.salary && (
-                        <div className="flex items-center text-xs mb-3 font-semibold" style={{ color: '#00FF84' }}>
-                          <CurrencyDollarIcon className="h-3 w-3 mr-1" />
-                          {job.salary}
-                        </div>
-                      )}
-                      <Link
-                        to={`/jobs/${job.id}`}
-                        className="text-xs font-medium transition-colors duration-200"
-                        style={{ color: '#00FF84' }}
-                        onMouseEnter={(e) => e.target.style.color = '#00E676'}
-                        onMouseLeave={(e) => e.target.style.color = '#00FF84'}
-                      >
-                        View Details →
-                      </Link>
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
 
             {/* Right Column */}
-            <div className="space-y-6">
-              {/* Profile Completion */}
-              <div 
-                className="rounded-xl p-6"
-                style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-              >
-                <h3 className="text-lg font-semibold mb-4" style={{ color: '#FFFFFF' }}>
-                  Profile Completion
-                </h3>
-                <div className="mb-4">
-                  <div className="flex justify-between text-sm mb-2">
-                    <span style={{ color: '#B0B0B0' }}>Progress</span>
-                    <span style={{ color: '#00FF84' }} className="font-semibold">{profileCompletion}%</span>
-                  </div>
-                  <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div 
-                      className="h-2 rounded-full transition-all duration-300"
-                      style={{ 
-                        backgroundColor: '#00FF84',
-                        width: `${profileCompletion}%`
-                      }}
-                    ></div>
-                  </div>
-                </div>
-                <p className="text-sm mb-4" style={{ color: '#B0B0B0' }}>
-                  Complete your profile to get better job recommendations
-                </p>
-                <Link
-                  to="/profile"
-                  className="block w-full py-2 px-4 rounded-lg font-medium text-center transition-all duration-200 hover:shadow-lg"
-                  style={{ backgroundColor: '#00FF84', color: '#000000' }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#00E676'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = '#00FF84'}
+            {user?.role === 'user' && (
+              <div className="space-y-6">
+                {/* Profile Completion */}
+                <div 
+                  className="rounded-xl p-6"
+                  style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
                 >
-                  Complete Profile
-                </Link>
-              </div>
-
-              {/* Quick Actions */}
-              <div 
-                className="rounded-xl p-6"
-                style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
-              >
-                <h3 className="text-lg font-semibold mb-4" style={{ color: '#FFFFFF' }}>
-                  Quick Actions
-                </h3>
-                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold mb-4" style={{ color: '#FFFFFF' }}>
+                    Profile Completion
+                  </h3>
+                  <div className="mb-4">
+                    <div className="flex justify-between text-sm mb-2">
+                      <span style={{ color: '#B0B0B0' }}>Progress</span>
+                      <span style={{ color: '#00FF84' }} className="font-semibold">{profileCompletion}%</span>
+                    </div>
+                    <div className="w-full bg-gray-700 rounded-full h-2">
+                      <div 
+                        className="h-2 rounded-full transition-all duration-300"
+                        style={{ 
+                          backgroundColor: '#00FF84',
+                          width: `${profileCompletion}%`
+                        }}
+                      ></div>
+                    </div>
+                  </div>
+                  <p className="text-sm mb-4" style={{ color: '#B0B0B0' }}>
+                    Complete your profile to get better job recommendations
+                  </p>
                   <Link
                     to="/profile"
-                    className="flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 hover:bg-white/5"
+                    className="block w-full py-2 px-4 rounded-lg font-medium text-center transition-all duration-200 hover:shadow-lg"
+                    style={{ backgroundColor: '#00FF84', color: '#000000' }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#00E676'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = '#00FF84'}
                   >
-                    <PencilIcon className="h-5 w-5" style={{ color: '#00FF84' }} />
-                    <span style={{ color: '#FFFFFF' }}>Update Profile</span>
-                  </Link>
-                  <Link
-                    to="/jobs"
-                    className="flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 hover:bg-white/5"
-                  >
-                    <MagnifyingGlassIcon className="h-5 w-5" style={{ color: '#00FF84' }} />
-                    <span style={{ color: '#FFFFFF' }}>Browse Jobs</span>
-                  </Link>
-                  <Link
-                    to="/resume"
-                    className="flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 hover:bg-white/5"
-                  >
-                    <ArrowUpTrayIcon className="h-5 w-5" style={{ color: '#00FF84' }} />
-                    <span style={{ color: '#FFFFFF' }}>Upload Resume</span>
+                    Complete Profile
                   </Link>
                 </div>
+
+                {/* Quick Actions */}
+                <div 
+                  className="rounded-xl p-6"
+                  style={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
+                >
+                  <h3 className="text-lg font-semibold mb-4" style={{ color: '#FFFFFF' }}>
+                    Quick Actions
+                  </h3>
+                  <div className="space-y-3">
+                    <Link
+                      to="/profile"
+                      className="flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 hover:bg-white/5"
+                    >
+                      <PencilIcon className="h-5 w-5" style={{ color: '#00FF84' }} />
+                      <span style={{ color: '#FFFFFF' }}>Update Profile</span>
+                    </Link>
+                    <Link
+                      to="/jobs"
+                      className="flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 hover:bg-white/5"
+                    >
+                      <MagnifyingGlassIcon className="h-5 w-5" style={{ color: '#00FF84' }} />
+                      <span style={{ color: '#FFFFFF' }}>Browse Jobs</span>
+                    </Link>
+                    <Link
+                      to="/resume"
+                      className="flex items-center space-x-3 p-3 rounded-lg transition-colors duration-200 hover:bg-white/5"
+                    >
+                      <ArrowUpTrayIcon className="h-5 w-5" style={{ color: '#00FF84' }} />
+                      <span style={{ color: '#FFFFFF' }}>Upload Resume</span>
+                    </Link>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>

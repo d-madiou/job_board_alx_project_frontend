@@ -131,26 +131,28 @@ const Navbar = () => {
 
           {/* Right Side Menu */}
           <div className="hidden lg:flex items-center space-x-4">
-            {/* Post Job Button */}
-            <Link
-              to="/post-job"
-              className="px-6 py-3 rounded-xl font-bold transition-all duration-200 hover:shadow-lg border-2"
-              style={{ 
-                backgroundColor: 'transparent',
-                color: '#FFFFFF',
-                borderColor: '#FFFFFF'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.backgroundColor = '#FFFFFF';
-                e.target.style.color = '#000000';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.backgroundColor = 'transparent';
-                e.target.style.color = '#FFFFFF';
-              }}
-            >
-              Post a Job
-            </Link>
+            {/* Post Job Button - Only for admin and employer */}
+            {isAuthenticated && (user?.role === 'admin' || user?.role === 'employer') && (
+              <Link
+                to="/post-job"
+                className="px-6 py-3 rounded-xl font-bold transition-all duration-200 hover:shadow-lg border-2"
+                style={{ 
+                  backgroundColor: 'transparent',
+                  color: '#FFFFFF',
+                  borderColor: '#FFFFFF'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.backgroundColor = '#FFFFFF';
+                  e.target.style.color = '#000000';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.backgroundColor = 'transparent';
+                  e.target.style.color = '#FFFFFF';
+                }}
+              >
+                Post a Job
+              </Link>
+            )}
 
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
@@ -343,19 +345,21 @@ const Navbar = () => {
                 About
               </Link>
 
-              {/* Mobile Post Job Button */}
-              <Link
-                to="/post-job"
-                className="block mx-3 my-2 px-4 py-2 rounded-lg font-bold text-center transition-all duration-200 border-2"
-                style={{ 
-                  backgroundColor: 'transparent',
-                  color: '#FFFFFF',
-                  borderColor: '#FFFFFF'
-                }}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Post a Job
-              </Link>
+              {/* Mobile Post Job Button - Only for admin and employer */}
+              {isAuthenticated && (user?.role === 'admin' || user?.role === 'employer') && (
+                <Link
+                  to="/post-job"
+                  className="block mx-3 my-2 px-4 py-2 rounded-lg font-bold text-center transition-all duration-200 border-2"
+                  style={{ 
+                    backgroundColor: 'transparent',
+                    color: '#FFFFFF',
+                    borderColor: '#FFFFFF'
+                  }}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  Post a Job
+                </Link>
+              )}
 
               {isAuthenticated ? (
                 <>

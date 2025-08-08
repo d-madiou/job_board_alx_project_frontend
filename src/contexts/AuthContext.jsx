@@ -29,6 +29,8 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+  
+
   const login = async (formData) => {
     try {
       const response = await api.post('/auth/login/', { // Use custom /auth/login/

@@ -13,6 +13,9 @@ import Jobs from './pages/Jobs';
 import CompanyProfile from './pages/CompanyProfile';
 import JobDetails from './pages/JobDetails';
 import JobApplicationForm from './pages/JobApplicationForm';
+import UserProfile from './pages/UserProfile';
+import Applications from './pages/Applications';
+import PostJob from './pages/PostJob';
 
 function App() {
   return (
@@ -40,6 +43,9 @@ function App() {
             />
             <Route path="/jobs" element={<Jobs/>} />
             <Route path="/companies" element={<Companies/>} />
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/applications" element={<Applications />} />
+            <Route path="/post-job" element={<PostJob />} />
             <Route path="/companies/:slug" element={<CompanyProfile />} />
             <Route path="/:slug/" element={<JobDetails />} />
             <Route path="/:slug/apply/" element={<JobApplicationForm />} />
