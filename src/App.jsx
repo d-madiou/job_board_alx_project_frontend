@@ -11,6 +11,8 @@ import DashboardPage from './pages/DashboardPage';
 import Companies from './pages/Companies';
 import Jobs from './pages/Jobs';
 import CompanyProfile from './pages/CompanyProfile';
+import JobDetails from './pages/JobDetails';
+import JobApplicationForm from './pages/JobApplicationForm';
 
 function App() {
   return (
@@ -38,7 +40,9 @@ function App() {
             />
             <Route path="/jobs" element={<Jobs/>} />
             <Route path="/companies" element={<Companies/>} />
-            <Route path="/companies/:id" element={<CompanyProfile />} />
+            <Route path="/companies/:slug" element={<CompanyProfile />} />
+            <Route path="/:slug/" element={<JobDetails />} />
+            <Route path="/:slug/apply/" element={<JobApplicationForm />} />
 
           </Routes>
         </div>

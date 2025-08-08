@@ -33,10 +33,10 @@ const Navbar = () => {
 
   return (
     <nav 
-      className="sticky top-0 z-50 shadow-lg"
-      style={{ 
-        backgroundColor: '#282828',
-        borderBottom: '1px solid #3F7A8C',
+      className="sticky top-0 z-50 shadow-lg border-b-2"
+      style={{
+        backgroundColor: '#0C1B33',
+        borderBottomColor: '#00FF84',
         fontFamily: 'Poppins, sans-serif'
       }}
     >
@@ -45,15 +45,15 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2">
-              <div 
-                className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: '#54990b' }}
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center"
+                style={{ backgroundColor: '#00FF84' }}
               >
-                <span className="text-white font-bold text-lg">J</span>
+                <span className="text-xl font-black" style={{ color: '#000000' }}>J</span>
               </div>
-              <span 
-                className="text-xl font-bold"
-                style={{ color: '#54990b' }}
+              <span
+                className="text-2xl font-black"
+                style={{ color: '#00FF84' }}
               >
                 Golleh
               </span>
@@ -64,37 +64,37 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center space-x-8">
             <Link
               to="/"
-              className="font-medium transition-colors duration-200"
-              style={{ color: '#F0F0F0' }}
-              onMouseEnter={(e) => e.target.style.color = '#6AA84F'}
-              onMouseLeave={(e) => e.target.style.color = '#F0F0F0'}
+              className="font-bold transition-colors duration-200"
+              style={{ color: '#FFFFFF' }}
+              onMouseEnter={(e) => e.target.style.color = '#00FF84'}
+              onMouseLeave={(e) => e.target.style.color = '#FFFFFF'}
             >
               Home
             </Link>
             <Link
               to="/jobs"
-              className="font-medium transition-colors duration-200"
-              style={{ color: '#F0F0F0' }}
-              onMouseEnter={(e) => e.target.style.color = '#6AA84F'}
-              onMouseLeave={(e) => e.target.style.color = '#F0F0F0'}
+              className="font-bold transition-colors duration-200"
+              style={{ color: '#FFFFFF' }}
+              onMouseEnter={(e) => e.target.style.color = '#00FF84'}
+              onMouseLeave={(e) => e.target.style.color = '#FFFFFF'}
             >
               Jobs
             </Link>
             <Link
               to="/companies"
-              className="font-medium transition-colors duration-200"
-              style={{ color: '#F0F0F0' }}
-              onMouseEnter={(e) => e.target.style.color = '#6AA84F'}
-              onMouseLeave={(e) => e.target.style.color = '#F0F0F0'}
+              className="font-bold transition-colors duration-200"
+              style={{ color: '#FFFFFF' }}
+              onMouseEnter={(e) => e.target.style.color = '#00FF84'}
+              onMouseLeave={(e) => e.target.style.color = '#FFFFFF'}
             >
               Companies
             </Link>
             <Link
               to="/about"
-              className="font-medium transition-colors duration-200"
-              style={{ color: '#F0F0F0' }}
-              onMouseEnter={(e) => e.target.style.color = '#6AA84F'}
-              onMouseLeave={(e) => e.target.style.color = '#F0F0F0'}
+              className="font-bold transition-colors duration-200"
+              style={{ color: '#FFFFFF' }}
+              onMouseEnter={(e) => e.target.style.color = '#00FF84'}
+              onMouseLeave={(e) => e.target.style.color = '#FFFFFF'}
             >
               About
             </Link>
@@ -109,13 +109,18 @@ const Navbar = () => {
                   placeholder="Search jobs, companies..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-4 pr-12 py-2 rounded-lg border-none outline-none text-gray-800 placeholder-gray-500"
+                  className="w-full pl-4 pr-12 py-2 rounded-lg border-2 outline-none font-medium"
+                  style={{ 
+                    backgroundColor: '#FFFFFF',
+                    borderColor: '#00FF84',
+                    color: '#000000'
+                  }}
                 />
                 <button
                   type="submit"
                   className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 rounded-md transition-colors duration-200"
-                  style={{ color: '#54990b' }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(84, 153, 11, 0.1)'}
+                  style={{ color: '#00FF84' }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(0, 255, 132, 0.1)'}
                   onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                 >
                   <MagnifyingGlassIcon className="h-5 w-5" />
@@ -129,10 +134,20 @@ const Navbar = () => {
             {/* Post Job Button */}
             <Link
               to="/post-job"
-              className="px-4 py-2 rounded-lg font-semibold text-white transition-all duration-200 hover:shadow-lg"
-              style={{ backgroundColor: '#D98C3F' }}
-              onMouseEnter={(e) => e.target.style.backgroundColor = '#E09A4F'}
-              onMouseLeave={(e) => e.target.style.backgroundColor = '#D98C3F'}
+              className="px-6 py-3 rounded-xl font-bold transition-all duration-200 hover:shadow-lg border-2"
+              style={{ 
+                backgroundColor: 'transparent',
+                color: '#FFFFFF',
+                borderColor: '#FFFFFF'
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#FFFFFF';
+                e.target.style.color = '#000000';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = 'transparent';
+                e.target.style.color = '#FFFFFF';
+              }}
             >
               Post a Job
             </Link>
@@ -141,10 +156,10 @@ const Navbar = () => {
               <div className="flex items-center space-x-4">
                 {/* Notifications */}
                 <button className="relative p-2 rounded-lg transition-colors duration-200 hover:bg-white/10">
-                  <BellIcon className="h-6 w-6" style={{ color: '#F0F0F0' }} />
-                  <span 
+                  <BellIcon className="h-6 w-6" style={{ color: '#FFFFFF' }} />
+                  <span
                     className="absolute -top-1 -right-1 w-3 h-3 rounded-full"
-                    style={{ backgroundColor: '#D98C3F' }}
+                    style={{ backgroundColor: '#00FF84' }}
                   ></span>
                 </button>
 
@@ -154,26 +169,32 @@ const Navbar = () => {
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                     className="flex items-center space-x-2 p-2 rounded-lg transition-colors duration-200 hover:bg-white/10"
                   >
-                    <div className="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center">
-                      <UserIcon className="h-5 w-5" style={{ color: '#F0F0F0' }} />
+                    <div 
+                      className="w-8 h-8 rounded-full flex items-center justify-center"
+                      style={{ backgroundColor: '#00FF84' }}
+                    >
+                      <UserIcon className="h-5 w-5" style={{ color: '#000000' }} />
                     </div>
-                    <span style={{ color: '#F0F0F0' }} className="font-medium">
+                    <span style={{ color: '#FFFFFF' }} className="font-bold">
                       {user?.first_name}
                     </span>
-                    <ChevronDownIcon className="h-4 w-4" style={{ color: '#A0A0A0' }} />
+                    <ChevronDownIcon className="h-4 w-4" style={{ color: '#FFFFFF' }} />
                   </button>
 
                   {/* User Dropdown */}
                   {userMenuOpen && (
-                    <div 
-                      className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg py-2 z-50"
-                      style={{ backgroundColor: '#282828', border: '1px solid #3F7A8C' }}
+                    <div
+                      className="absolute right-0 mt-2 w-48 rounded-xl shadow-lg py-2 z-50 border-2"
+                      style={{ 
+                        backgroundColor: '#0C1B33',
+                        borderColor: '#00FF84'
+                      }}
                     >
                       <Link
                         to="/dashboard"
-                        className="block px-4 py-2 text-sm transition-colors duration-200"
-                        style={{ color: '#F0F0F0' }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                        className="block px-4 py-2 text-sm font-medium transition-colors duration-200"
+                        style={{ color: '#FFFFFF' }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(0, 255, 132, 0.1)'}
                         onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                         onClick={() => setUserMenuOpen(false)}
                       >
@@ -181,9 +202,9 @@ const Navbar = () => {
                       </Link>
                       <Link
                         to="/profile"
-                        className="block px-4 py-2 text-sm transition-colors duration-200"
-                        style={{ color: '#F0F0F0' }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                        className="block px-4 py-2 text-sm font-medium transition-colors duration-200"
+                        style={{ color: '#FFFFFF' }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(0, 255, 132, 0.1)'}
                         onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                         onClick={() => setUserMenuOpen(false)}
                       >
@@ -191,9 +212,9 @@ const Navbar = () => {
                       </Link>
                       <button
                         onClick={handleLogout}
-                        className="block w-full text-left px-4 py-2 text-sm transition-colors duration-200"
-                        style={{ color: '#F0F0F0' }}
-                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                        className="block w-full text-left px-4 py-2 text-sm font-medium transition-colors duration-200"
+                        style={{ color: '#FFFFFF' }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(0, 255, 132, 0.1)'}
                         onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                       >
                         Logout
@@ -206,19 +227,28 @@ const Navbar = () => {
               <div className="flex items-center space-x-4">
                 <Link
                   to="/login"
-                  className="font-medium transition-colors duration-200"
-                  style={{ color: '#F0F0F0' }}
-                  onMouseEnter={(e) => e.target.style.color = '#6AA84F'}
-                  onMouseLeave={(e) => e.target.style.color = '#F0F0F0'}
+                  className="font-bold transition-colors duration-200"
+                  style={{ color: '#FFFFFF' }}
+                  onMouseEnter={(e) => e.target.style.color = '#00FF84'}
+                  onMouseLeave={(e) => e.target.style.color = '#FFFFFF'}
                 >
                   Login
                 </Link>
                 <Link
                   to="/register"
-                  className="px-4 py-2 rounded-lg font-semibold transition-all duration-200 hover:shadow-lg"
-                  style={{ backgroundColor: '#54990b', color: 'white' }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#6AA84F'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = '#54990b'}
+                  className="px-6 py-3 rounded-xl font-bold transition-all duration-200 hover:shadow-lg"
+                  style={{ 
+                    backgroundColor: '#00FF84',
+                    color: '#000000'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.backgroundColor = '#00E676';
+                    e.target.style.boxShadow = '0 4px 15px rgba(0, 255, 132, 0.4)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.backgroundColor = '#00FF84';
+                    e.target.style.boxShadow = 'none';
+                  }}
                 >
                   Register
                 </Link>
@@ -233,9 +263,9 @@ const Navbar = () => {
               className="p-2 rounded-lg transition-colors duration-200 hover:bg-white/10"
             >
               {mobileMenuOpen ? (
-                <XMarkIcon className="h-6 w-6" style={{ color: '#F0F0F0' }} />
+                <XMarkIcon className="h-6 w-6" style={{ color: '#FFFFFF' }} />
               ) : (
-                <Bars3Icon className="h-6 w-6" style={{ color: '#F0F0F0' }} />
+                <Bars3Icon className="h-6 w-6" style={{ color: '#FFFFFF' }} />
               )}
             </button>
           </div>
@@ -243,7 +273,7 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden border-t" style={{ borderColor: '#3F7A8C' }}>
+          <div className="lg:hidden border-t-2" style={{ borderTopColor: '#00FF84' }}>
             <div className="px-2 pt-2 pb-3 space-y-1">
               {/* Mobile Search */}
               <div className="px-3 py-2">
@@ -254,12 +284,17 @@ const Navbar = () => {
                       placeholder="Search jobs..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-4 pr-12 py-2 rounded-lg border-none outline-none text-gray-800 placeholder-gray-500"
+                      className="w-full pl-4 pr-12 py-2 rounded-lg border-2 outline-none font-medium"
+                      style={{ 
+                        backgroundColor: '#FFFFFF',
+                        borderColor: '#00FF84',
+                        color: '#000000'
+                      }}
                     />
                     <button
                       type="submit"
                       className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5"
-                      style={{ color: '#54990b' }}
+                      style={{ color: '#00FF84' }}
                     >
                       <MagnifyingGlassIcon className="h-5 w-5" />
                     </button>
@@ -269,9 +304,9 @@ const Navbar = () => {
 
               <Link
                 to="/"
-                className="block px-3 py-2 rounded-md font-medium transition-colors duration-200"
-                style={{ color: '#F0F0F0' }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                className="block px-3 py-2 rounded-md font-bold transition-colors duration-200"
+                style={{ color: '#FFFFFF' }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(0, 255, 132, 0.1)'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -279,9 +314,9 @@ const Navbar = () => {
               </Link>
               <Link
                 to="/jobs"
-                className="block px-3 py-2 rounded-md font-medium transition-colors duration-200"
-                style={{ color: '#F0F0F0' }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                className="block px-3 py-2 rounded-md font-bold transition-colors duration-200"
+                style={{ color: '#FFFFFF' }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(0, 255, 132, 0.1)'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -289,9 +324,9 @@ const Navbar = () => {
               </Link>
               <Link
                 to="/companies"
-                className="block px-3 py-2 rounded-md font-medium transition-colors duration-200"
-                style={{ color: '#F0F0F0' }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                className="block px-3 py-2 rounded-md font-bold transition-colors duration-200"
+                style={{ color: '#FFFFFF' }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(0, 255, 132, 0.1)'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -299,9 +334,9 @@ const Navbar = () => {
               </Link>
               <Link
                 to="/about"
-                className="block px-3 py-2 rounded-md font-medium transition-colors duration-200"
-                style={{ color: '#F0F0F0' }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                className="block px-3 py-2 rounded-md font-bold transition-colors duration-200"
+                style={{ color: '#FFFFFF' }}
+                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(0, 255, 132, 0.1)'}
                 onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                 onClick={() => setMobileMenuOpen(false)}
               >
@@ -311,8 +346,12 @@ const Navbar = () => {
               {/* Mobile Post Job Button */}
               <Link
                 to="/post-job"
-                className="block mx-3 my-2 px-4 py-2 rounded-lg font-semibold text-white text-center transition-all duration-200"
-                style={{ backgroundColor: '#D98C3F' }}
+                className="block mx-3 my-2 px-4 py-2 rounded-lg font-bold text-center transition-all duration-200 border-2"
+                style={{ 
+                  backgroundColor: 'transparent',
+                  color: '#FFFFFF',
+                  borderColor: '#FFFFFF'
+                }}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Post a Job
@@ -322,24 +361,24 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/dashboard"
-                    className="block px-3 py-2 rounded-md font-medium transition-colors duration-200"
-                    style={{ color: '#F0F0F0' }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                    className="block px-3 py-2 rounded-md font-bold transition-colors duration-200"
+                    style={{ color: '#FFFFFF' }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(0, 255, 132, 0.1)'}
                     onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Dashboard
                   </Link>
                   <div className="px-3 py-2">
-                    <span className="text-sm" style={{ color: '#A0A0A0' }}>
+                    <span className="text-sm font-medium" style={{ color: '#B0B0B0' }}>
                       {user?.first_name} {user?.last_name}
                     </span>
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="block w-full text-left px-3 py-2 rounded-md font-medium transition-colors duration-200"
-                    style={{ color: '#F0F0F0' }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                    className="block w-full text-left px-3 py-2 rounded-md font-bold transition-colors duration-200"
+                    style={{ color: '#FFFFFF' }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(0, 255, 132, 0.1)'}
                     onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                   >
                     Logout
@@ -349,9 +388,9 @@ const Navbar = () => {
                 <>
                   <Link
                     to="/login"
-                    className="block px-3 py-2 rounded-md font-medium transition-colors duration-200"
-                    style={{ color: '#F0F0F0' }}
-                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                    className="block px-3 py-2 rounded-md font-bold transition-colors duration-200"
+                    style={{ color: '#FFFFFF' }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(0, 255, 132, 0.1)'}
                     onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                     onClick={() => setMobileMenuOpen(false)}
                   >
@@ -359,8 +398,11 @@ const Navbar = () => {
                   </Link>
                   <Link
                     to="/register"
-                    className="block mx-3 my-2 px-4 py-2 rounded-lg font-semibold text-white text-center transition-all duration-200"
-                    style={{ backgroundColor: '#54990b' }}
+                    className="block mx-3 my-2 px-4 py-2 rounded-lg font-bold text-center transition-all duration-200"
+                    style={{ 
+                      backgroundColor: '#00FF84',
+                      color: '#000000'
+                    }}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     Register

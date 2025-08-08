@@ -1,8 +1,7 @@
-// src/components/auth/RegisterForm.jsx
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../contexts/auth';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 
 const RegisterForm = ({ onSuccess }) => {
   const { register, loading, error, clearError } = useAuth();
@@ -93,258 +92,368 @@ const RegisterForm = ({ onSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
+    <div 
+      className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+      style={{ backgroundColor: '#0C1B33', fontFamily: 'Poppins, sans-serif' }}
+    >
+      <div className="max-w-md w-full">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div 
+            className="w-16 h-16 rounded-xl mx-auto mb-6 flex items-center justify-center shadow-lg"
+            style={{ backgroundColor: '#00FF84' }}
+          >
+            <UserPlusIcon className="h-8 w-8" style={{ color: '#000000' }} />
+          </div>
+          <h2 className="text-3xl font-bold" style={{ color: '#FFFFFF' }}>
+            Join Our Community
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
+          <p className="mt-3 text-lg" style={{ color: '#B0B0B0' }}>
+            Create your account to get started
+          </p>
+          <p className="mt-2 text-sm" style={{ color: '#B0B0B0' }}>
+            Already have an account?{' '}
             <Link
               to="/login"
-              className="font-medium text-indigo-600 hover:text-indigo-500"
+              className="font-semibold transition-colors duration-200"
+              style={{ color: '#00FF84' }}
+              onMouseEnter={(e) => e.target.style.color = '#00E676'}
+              onMouseLeave={(e) => e.target.style.color = '#00FF84'}
             >
-              sign in to your existing account
+              Sign in here
             </Link>
           </p>
         </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
-              {error}
-            </div>
-          )}
-          
-          <div className="space-y-4">
-            {/* Username */}
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-                Username
-              </label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                autoComplete="username"
-                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  validationErrors.username ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
-                placeholder="Username"
-                value={formData.username}
-                onChange={handleChange}
-              />
-              {validationErrors.username && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.username}</p>
-              )}
-            </div>
 
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                  validationErrors.email ? 'border-red-300' : 'border-gray-300'
-                } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
-                placeholder="Email address"
-                value={formData.email}
-                onChange={handleChange}
-              />
-              {validationErrors.email && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
-              )}
-            </div>
-
-            {/* First and Last Name */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="first_name" className="block text-sm font-medium text-gray-700">
-                  First Name
-                </label>
-                <input
-                  id="first_name"
-                  name="first_name"
-                  type="text"
-                  autoComplete="given-name"
-                  className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                    validationErrors.first_name ? 'border-red-300' : 'border-gray-300'
-                  } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
-                  placeholder="First Name"
-                  value={formData.first_name}
-                  onChange={handleChange}
-                />
-                {validationErrors.first_name && (
-                  <p className="mt-1 text-sm text-red-600">{validationErrors.first_name}</p>
-                )}
-              </div>
-              
-              <div>
-                <label htmlFor="last_name" className="block text-sm font-medium text-gray-700">
-                  Last Name
-                </label>
-                <input
-                  id="last_name"
-                  name="last_name"
-                  type="text"
-                  autoComplete="family-name"
-                  className={`mt-1 appearance-none relative block w-full px-3 py-2 border ${
-                    validationErrors.last_name ? 'border-red-300' : 'border-gray-300'
-                  } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
-                  placeholder="Last Name"
-                  value={formData.last_name}
-                  onChange={handleChange}
-                />
-                {validationErrors.last_name && (
-                  <p className="mt-1 text-sm text-red-600">{validationErrors.last_name}</p>
-                )}
-              </div>
-            </div>
-
-            {/* Role */}
-            <div>
-              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
-                I am a
-              </label>
-              <select
-                id="role"
-                name="role"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                value={formData.role}
-                onChange={handleChange}
+        {/* Form */}
+        <div 
+          className="rounded-xl p-8 shadow-2xl"
+          style={{ backgroundColor: '#FFFFFF' }}
+        >
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            {error && (
+              <div 
+                className="p-4 rounded-lg border-l-4"
+                style={{ 
+                  backgroundColor: '#FFF0F0',
+                  borderColor: '#FF6B6B',
+                  color: '#DC2626'
+                }}
               >
-                <option value="user">Job Seeker</option>
-                <option value="employer">Employer</option>
-              </select>
-            </div>
+                <div className="flex items-center">
+                  <div className="w-2 h-2 rounded-full mr-3" style={{ backgroundColor: '#FF6B6B' }}></div>
+                  {error}
+                </div>
+              </div>
+            )}
 
-            {/* Phone (Optional) */}
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                Phone Number (Optional)
-              </label>
-              <input
-                id="phone"
-                name="phone"
-                type="tel"
-                autoComplete="tel"
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="Phone Number"
-                value={formData.phone}
-                onChange={handleChange}
-              />
-            </div>
-
-            {/* Location (Optional) */}
-            <div>
-              <label htmlFor="location" className="block text-sm font-medium text-gray-700">
-                Location (Optional)
-              </label>
-              <input
-                id="location"
-                name="location"
-                type="text"
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                placeholder="City, Country"
-                value={formData.location}
-                onChange={handleChange}
-              />
-            </div>
-            
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1 relative">
+            <div className="space-y-5">
+              {/* Username */}
+              <div>
+                <label htmlFor="username" className="block text-sm font-bold mb-3" style={{ color: '#000000' }}>
+                  Username
+                </label>
                 <input
-                  id="password"
-                  name="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  className={`appearance-none relative block w-full px-3 py-2 pr-10 border ${
-                    validationErrors.password ? 'border-red-300' : 'border-gray-300'
-                  } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
-                  placeholder="Password"
-                  value={formData.password}
+                  id="username"
+                  name="username"
+                  type="text"
+                  autoComplete="username"
+                  className={`w-full px-4 py-4 rounded-lg border-2 transition-all duration-200 focus:outline-none ${
+                    validationErrors.username ? 'border-red-300' : 'border-gray-200'
+                  }`}
+                  style={{ 
+                    backgroundColor: '#F8F9FA',
+                    color: '#000000'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = validationErrors.username ? '#FF6B6B' : '#00FF84'}
+                  onBlur={(e) => e.target.style.borderColor = validationErrors.username ? '#FF6B6B' : '#E5E7EB'}
+                  placeholder="Choose a username"
+                  value={formData.username}
                   onChange={handleChange}
                 />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <EyeIcon className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
+                {validationErrors.username && (
+                  <p className="mt-2 text-sm text-red-600">{validationErrors.username}</p>
+                )}
               </div>
-              {validationErrors.password && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.password}</p>
-              )}
-            </div>
 
-            {/* Confirm Password */}
-            <div>
-              <label htmlFor="password_confirm" className="block text-sm font-medium text-gray-700">
-                Confirm Password
-              </label>
-              <div className="mt-1 relative">
+              {/* Email */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-bold mb-3" style={{ color: '#000000' }}>
+                  Email Address
+                </label>
                 <input
-                  id="password_confirm"
-                  name="password_confirm"
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  className={`appearance-none relative block w-full px-3 py-2 pr-10 border ${
-                    validationErrors.password_confirm ? 'border-red-300' : 'border-gray-300'
-                  } placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm`}
-                  placeholder="Confirm Password"
-                  value={formData.password_confirm}
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  className={`w-full px-4 py-4 rounded-lg border-2 transition-all duration-200 focus:outline-none ${
+                    validationErrors.email ? 'border-red-300' : 'border-gray-200'
+                  }`}
+                  style={{ 
+                    backgroundColor: '#F8F9FA',
+                    color: '#000000'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = validationErrors.email ? '#FF6B6B' : '#00FF84'}
+                  onBlur={(e) => e.target.style.borderColor = validationErrors.email ? '#FF6B6B' : '#E5E7EB'}
+                  placeholder="Enter your email address"
+                  value={formData.email}
                   onChange={handleChange}
                 />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <EyeIcon className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
+                {validationErrors.email && (
+                  <p className="mt-2 text-sm text-red-600">{validationErrors.email}</p>
+                )}
               </div>
-              {validationErrors.password_confirm && (
-                <p className="mt-1 text-sm text-red-600">{validationErrors.password_confirm}</p>
-              )}
-            </div>
-          </div>
 
-          <div>
+              {/* First and Last Name */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="first_name" className="block text-sm font-bold mb-3" style={{ color: '#000000' }}>
+                    First Name
+                  </label>
+                  <input
+                    id="first_name"
+                    name="first_name"
+                    type="text"
+                    autoComplete="given-name"
+                    className={`w-full px-4 py-4 rounded-lg border-2 transition-all duration-200 focus:outline-none ${
+                      validationErrors.first_name ? 'border-red-300' : 'border-gray-200'
+                    }`}
+                    style={{ 
+                      backgroundColor: '#F8F9FA',
+                      color: '#000000'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = validationErrors.first_name ? '#FF6B6B' : '#00FF84'}
+                    onBlur={(e) => e.target.style.borderColor = validationErrors.first_name ? '#FF6B6B' : '#E5E7EB'}
+                    placeholder="First Name"
+                    value={formData.first_name}
+                    onChange={handleChange}
+                  />
+                  {validationErrors.first_name && (
+                    <p className="mt-2 text-sm text-red-600">{validationErrors.first_name}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label htmlFor="last_name" className="block text-sm font-bold mb-3" style={{ color: '#000000' }}>
+                    Last Name
+                  </label>
+                  <input
+                    id="last_name"
+                    name="last_name"
+                    type="text"
+                    autoComplete="family-name"
+                    className={`w-full px-4 py-4 rounded-lg border-2 transition-all duration-200 focus:outline-none ${
+                      validationErrors.last_name ? 'border-red-300' : 'border-gray-200'
+                    }`}
+                    style={{ 
+                      backgroundColor: '#F8F9FA',
+                      color: '#000000'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = validationErrors.last_name ? '#FF6B6B' : '#00FF84'}
+                    onBlur={(e) => e.target.style.borderColor = validationErrors.last_name ? '#FF6B6B' : '#E5E7EB'}
+                    placeholder="Last Name"
+                    value={formData.last_name}
+                    onChange={handleChange}
+                  />
+                  {validationErrors.last_name && (
+                    <p className="mt-2 text-sm text-red-600">{validationErrors.last_name}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Role */}
+              <div>
+                <label htmlFor="role" className="block text-sm font-bold mb-3" style={{ color: '#000000' }}>
+                  I am a
+                </label>
+                <select
+                  id="role"
+                  name="role"
+                  className="w-full px-4 py-4 rounded-lg border-2 transition-all duration-200 focus:outline-none cursor-pointer"
+                  style={{ 
+                    backgroundColor: '#F8F9FA',
+                    color: '#000000',
+                    borderColor: '#E5E7EB'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#00FF84'}
+                  onBlur={(e) => e.target.style.borderColor = '#E5E7EB'}
+                  value={formData.role}
+                  onChange={handleChange}
+                >
+                  <option value="user">Job Seeker</option>
+                  <option value="employer">Employer</option>
+                </select>
+              </div>
+
+              {/* Phone (Optional) */}
+              <div>
+                <label htmlFor="phone" className="block text-sm font-bold mb-3" style={{ color: '#000000' }}>
+                  Phone Number (Optional)
+                </label>
+                <input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  autoComplete="tel"
+                  className="w-full px-4 py-4 rounded-lg border-2 transition-all duration-200 focus:outline-none"
+                  style={{ 
+                    backgroundColor: '#F8F9FA',
+                    color: '#000000',
+                    borderColor: '#E5E7EB'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#00FF84'}
+                  onBlur={(e) => e.target.style.borderColor = '#E5E7EB'}
+                  placeholder="Phone Number"
+                  value={formData.phone}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Location (Optional) */}
+              <div>
+                <label htmlFor="location" className="block text-sm font-bold mb-3" style={{ color: '#000000' }}>
+                  Location (Optional)
+                </label>
+                <input
+                  id="location"
+                  name="location"
+                  type="text"
+                  className="w-full px-4 py-4 rounded-lg border-2 transition-all duration-200 focus:outline-none"
+                  style={{ 
+                    backgroundColor: '#F8F9FA',
+                    color: '#000000',
+                    borderColor: '#E5E7EB'
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = '#00FF84'}
+                  onBlur={(e) => e.target.style.borderColor = '#E5E7EB'}
+                  placeholder="City, Country"
+                  value={formData.location}
+                  onChange={handleChange}
+                />
+              </div>
+
+              {/* Password */}
+              <div>
+                <label htmlFor="password" className="block text-sm font-bold mb-3" style={{ color: '#000000' }}>
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    className={`w-full px-4 py-4 pr-12 rounded-lg border-2 transition-all duration-200 focus:outline-none ${
+                      validationErrors.password ? 'border-red-300' : 'border-gray-200'
+                    }`}
+                    style={{ 
+                      backgroundColor: '#F8F9FA',
+                      color: '#000000'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = validationErrors.password ? '#FF6B6B' : '#00FF84'}
+                    onBlur={(e) => e.target.style.borderColor = validationErrors.password ? '#FF6B6B' : '#E5E7EB'}
+                    placeholder="Create a password"
+                    value={formData.password}
+                    onChange={handleChange}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center transition-colors duration-200"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ color: '#666666' }}
+                    onMouseEnter={(e) => e.target.style.color = '#00FF84'}
+                    onMouseLeave={(e) => e.target.style.color = '#666666'}
+                  >
+                    {showPassword ? (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+                {validationErrors.password && (
+                  <p className="mt-2 text-sm text-red-600">{validationErrors.password}</p>
+                )}
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label htmlFor="password_confirm" className="block text-sm font-bold mb-3" style={{ color: '#000000' }}>
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <input
+                    id="password_confirm"
+                    name="password_confirm"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    className={`w-full px-4 py-4 pr-12 rounded-lg border-2 transition-all duration-200 focus:outline-none ${
+                      validationErrors.password_confirm ? 'border-red-300' : 'border-gray-200'
+                    }`}
+                    style={{ 
+                      backgroundColor: '#F8F9FA',
+                      color: '#000000'
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = validationErrors.password_confirm ? '#FF6B6B' : '#00FF84'}
+                    onBlur={(e) => e.target.style.borderColor = validationErrors.password_confirm ? '#FF6B6B' : '#E5E7EB'}
+                    placeholder="Confirm your password"
+                    value={formData.password_confirm}
+                    onChange={handleChange}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center transition-colors duration-200"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={{ color: '#666666' }}
+                    onMouseEnter={(e) => e.target.style.color = '#00FF84'}
+                    onMouseLeave={(e) => e.target.style.color = '#666666'}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+                {validationErrors.password_confirm && (
+                  <p className="mt-2 text-sm text-red-600">{validationErrors.password_confirm}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 px-6 rounded-lg font-bold text-lg transition-all duration-200 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105"
+              style={{ 
+                backgroundColor: '#00FF84',
+                color: '#000000'
+              }}
+              onMouseEnter={(e) => {
+                if (!e.target.disabled) {
+                  e.target.style.backgroundColor = '#00E676';
+                  e.target.style.boxShadow = '0 10px 25px rgba(0, 255, 132, 0.3)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!e.target.disabled) {
+                  e.target.style.backgroundColor = '#00FF84';
+                  e.target.style.boxShadow = 'none';
+                }
+              }}
             >
               {loading ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Creating account...
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-black mr-3"></div>
+                  Creating Account...
                 </div>
               ) : (
-                'Create account'
+                'Create Account'
               )}
             </button>
-          </div>
-        </form>
+          </form>
+        </div>
       </div>
     </div>
   );
