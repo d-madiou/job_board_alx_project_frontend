@@ -1,5 +1,7 @@
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/auth';
+import api from '../utils/api';
 import {
   UserIcon,
   BriefcaseIcon,
@@ -22,12 +24,8 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Applications = () => {
-  // Mock user data - replace with actual auth context
-  const user = { 
-    role: 'user', // Can be 'user', 'employer', or 'admin'
-    first_name: 'John',
-    email: 'john@example.com'
-  };
+  const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,122 +48,79 @@ const Applications = () => {
     { id: 'applications', label: 'Applications', icon: BriefcaseIcon, active: true }
   ];
 
-  // Mock data for different user roles
-  const mockApplicationsData = {
-    user: [
-      {
-        id: 1,
-        status: 'pending',
-        applied_date: '2024-01-15',
-        job: {
-          title: 'Frontend Developer',
-          company: { name: 'TechCorp Inc.' },
-          location: 'San Francisco, CA'
-        }
-      },
-      {
-        id: 2,
-        status: 'interview',
-        applied_date: '2024-01-10',
-        job: {
-          title: 'React Developer',
-          company: { name: 'StartupXYZ' },
-          location: 'Remote'
-        }
-      },
-      {
-        id: 3,
-        status: 'rejected',
-        applied_date: '2024-01-05',
-        job: {
-          title: 'Full Stack Developer',
-          company: { name: 'BigTech Corp' },
-          location: 'New York, NY'
-        }
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    fetchApplications();
+  }, [isAuthenticated, navigate]);
+
+  const fetchApplications = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      let endpoint = '/applications/';
+      
+      // Different endpoints based on user role
+      if (user?.role === 'employer') {
+        // Fetch applications for jobs posted by this employer
+        endpoint = '/applications/employer/';
+      } else if (user?.role === 'admin') {
+        // Fetch all applications (admin view)
+        endpoint = '/applications/admin/';
+      } else {
+        // Default: fetch user's own applications
+        endpoint = '/applications/my-applications/';
       }
-    ],
-    employer: [
-      {
-        id: 1,
-        status: 'pending',
-        applied_date: '2024-01-15',
-        job: {
-          title: 'Senior Developer',
-          company: { name: 'My Company' },
-          location: 'San Francisco, CA'
-        },
-        applicant: {
-          full_name: 'Alice Johnson',
-          email: 'alice@example.com'
+
+      const response = await api.get(endpoint);
+      const applicationsData = response.data.results || response.data || [];
+      
+      setApplications(applicationsData);
+      calculateStats(applicationsData);
+      
+    } catch (err) {
+      console.error('Error fetching applications:', err);
+      if (err.response?.status === 404) {
+        // If specific endpoints don't exist, try the general endpoint
+        try {
+          const response = await api.get('/applications/');
+          const applicationsData = response.data.results || response.data || [];
+          setApplications(applicationsData);
+          calculateStats(applicationsData);
+        } catch (fallbackErr) {
+          setError('Unable to load applications. Please try again later.');
         }
-      },
-      {
-        id: 2,
-        status: 'interview',
-        applied_date: '2024-01-12',
-        job: {
-          title: 'Product Manager',
-          company: { name: 'My Company' },
-          location: 'Remote'
-        },
-        applicant: {
-          full_name: 'Bob Smith',
-          email: 'bob@example.com'
-        }
+      } else {
+        setError(err.response?.data?.detail || 'Failed to load applications');
       }
-    ],
-    admin: [
-      {
-        id: 1,
-        status: 'pending',
-        applied_date: '2024-01-15',
-        job: {
-          title: 'Frontend Developer',
-          company: { name: 'TechCorp Inc.' },
-          location: 'San Francisco, CA'
-        },
-        applicant: {
-          full_name: 'John Doe',
-          email: 'john@example.com'
-        }
-      },
-      {
-        id: 2,
-        status: 'accepted',
-        applied_date: '2024-01-10',
-        job: {
-          title: 'Backend Developer',
-          company: { name: 'StartupXYZ' },
-          location: 'Remote'
-        },
-        applicant: {
-          full_name: 'Jane Smith',
-          email: 'jane@example.com'
-        }
-      }
-    ]
+    } finally {
+      setLoading(false);
+    }
   };
 
-  useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      const roleData = mockApplicationsData[user.role] || [];
-      setApplications(roleData);
-      
-      if (user?.role !== 'employer') {
-        const totalApplications = roleData.length;
-        setStats({
-          total: totalApplications,
-          pending: roleData.filter(app => app.status === 'pending').length,
-          interview: roleData.filter(app => app.status === 'interview').length,
-          accepted: roleData.filter(app => app.status === 'accepted').length,
-          rejected: roleData.filter(app => app.status === 'rejected').length
-        });
-      }
-      
-      setLoading(false);
-    }, 1000);
-  }, [user?.role]);
+  const calculateStats = (applicationsData) => {
+    if (user?.role === 'employer') {
+      // For employers, don't show stats or show different stats
+      return;
+    }
+
+    const total = applicationsData.length;
+    const pending = applicationsData.filter(app => app.status?.toLowerCase() === 'pending').length;
+    const interview = applicationsData.filter(app => app.status?.toLowerCase() === 'interview').length;
+    const accepted = applicationsData.filter(app => app.status?.toLowerCase() === 'accepted').length;
+    const rejected = applicationsData.filter(app => app.status?.toLowerCase() === 'rejected').length;
+
+    setStats({
+      total,
+      pending,
+      interview,
+      accepted,
+      rejected
+    });
+  };
 
   const handleWithdrawApplication = async (applicationId) => {
     if (!window.confirm('Are you sure you want to withdraw this application?')) {
@@ -173,26 +128,38 @@ const Applications = () => {
     }
 
     try {
-      // Simulate API call
+      await api.delete(`/applications/${applicationId}/`);
       setApplications(prev => prev.filter(app => app.id !== applicationId));
+      // Recalculate stats
+      const updatedApplications = applications.filter(app => app.id !== applicationId);
+      calculateStats(updatedApplications);
       alert('Application withdrawn successfully');
     } catch (err) {
-      alert('Failed to withdraw application');
+      console.error('Error withdrawing application:', err);
+      alert(err.response?.data?.detail || 'Failed to withdraw application');
     }
   };
 
   const handleUpdateStatus = async (applicationId, newStatus) => {
     try {
-      // Simulate API call
+      await api.patch(`/applications/${applicationId}/`, { status: newStatus });
+      
       setApplications(prev => 
         prev.map(app => 
           app.id === applicationId ? { ...app, status: newStatus } : app
         )
       );
+      
+      // Recalculate stats after status update
+      const updatedApplications = applications.map(app => 
+        app.id === applicationId ? { ...app, status: newStatus } : app
+      );
+      calculateStats(updatedApplications);
+      
       alert('Status updated successfully');
-    // eslint-disable-next-line no-unused-vars
     } catch (err) {
-      alert('Failed to update application status');
+      console.error('Error updating status:', err);
+      alert(err.response?.data?.detail || 'Failed to update application status');
     }
   };
 
@@ -233,27 +200,51 @@ const Applications = () => {
       const matchesSearch = searchTerm === '' || 
         app.job?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         app.job?.company?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (user?.role !== 'user' && app.applicant?.full_name?.toLowerCase().includes(searchTerm.toLowerCase()));
+        app.company_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (user?.role !== 'user' && (
+          app.applicant?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          app.applicant?.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          app.applicant?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          app.user?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          app.user?.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          app.user?.email?.toLowerCase().includes(searchTerm.toLowerCase())
+        ));
       return matchesStatus && matchesSearch;
     })
     .sort((a, b) => {
       switch (sortBy) {
         case 'newest':
-          return new Date(b.applied_date || b.created_at) - new Date(a.applied_date || a.created_at);
+          return new Date(b.applied_date || b.created_at || b.date_applied) - new Date(a.applied_date || a.created_at || a.date_applied);
         case 'oldest':
-          return new Date(a.applied_date || a.created_at) - new Date(b.applied_date || b.created_at);
+          return new Date(a.applied_date || a.created_at || a.date_applied) - new Date(b.applied_date || b.created_at || b.date_applied);
         case 'company':
-          return (a.job?.company?.name || '').localeCompare(b.job?.company?.name || '');
+          return (a.job?.company?.name || a.company_name || '').localeCompare(b.job?.company?.name || b.company_name || '');
         case 'position':
-          return (a.job?.title || '').localeCompare(b.job?.title || '');
+          return (a.job?.title || a.job_title || '').localeCompare(b.job?.title || b.job_title || '');
         default:
           return 0;
       }
     });
 
-  const handleNavigation = (path) => {
-    // Mock navigation - replace with actual router navigation
-    console.log(`Navigating to: ${path}`);
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Date not available';
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch (error) {
+      return 'Invalid date';
+    }
+  };
+
+  const getApplicantName = (application) => {
+    if (application.applicant) {
+      return `${application.applicant.first_name || ''} ${application.applicant.last_name || ''}`.trim() || 
+             application.applicant.email || 'Unknown Applicant';
+    }
+    if (application.user) {
+      return `${application.user.first_name || ''} ${application.user.last_name || ''}`.trim() || 
+             application.user.email || 'Unknown Applicant';
+    }
+    return 'Unknown Applicant';
   };
 
   if (loading) {
@@ -277,7 +268,16 @@ const Applications = () => {
         style={{ backgroundColor: '#0C1B33', fontFamily: 'Poppins, sans-serif' }}
       >
         <div className="text-center">
-          <p style={{ color: '#00FF84' }} className="text-lg">{error}</p>
+          <p style={{ color: '#FF4444' }} className="text-lg mb-4">{error}</p>
+          <button
+            onClick={fetchApplications}
+            className="px-6 py-3 rounded-lg font-medium transition-all duration-200"
+            style={{ backgroundColor: '#00FF84', color: '#000000' }}
+            onMouseEnter={(e) => e.target.style.backgroundColor = '#00E676'}
+            onMouseLeave={(e) => e.target.style.backgroundColor = '#00FF84'}
+          >
+            Try Again
+          </button>
         </div>
       </div>
     );
@@ -300,10 +300,10 @@ const Applications = () => {
           
           <nav className="space-y-2">
             {sidebarItems.map((item) => (
-              <button
+              <Link
                 key={item.id}
-                onClick={() => handleNavigation(`/${item.id}`)}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 ${
+                to={`/${item.id}`}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 ${
                   item.active ? 'bg-white/10' : 'hover:bg-white/5'
                 }`}
                 style={{ 
@@ -312,7 +312,7 @@ const Applications = () => {
               >
                 <item.icon className="h-5 w-5" />
                 <span className="font-medium">{item.label}</span>
-              </button>
+              </Link>
             ))}
           </nav>
 
@@ -323,22 +323,22 @@ const Applications = () => {
                 QUICK ACTIONS
               </h3>
               <div className="space-y-2">
-                <button
-                  onClick={() => handleNavigation('/jobs')}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-white/5"
+                <Link
+                  to="/jobs"
+                  className="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-white/5"
                   style={{ color: '#B0B0B0' }}
                 >
                   <MagnifyingGlassIcon className="h-4 w-4" />
                   <span className="text-sm">Browse Jobs</span>
-                </button>
-                <button
-                  onClick={() => handleNavigation('/profile')}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-white/5"
+                </Link>
+                <Link
+                  to="/profile"
+                  className="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors duration-200 hover:bg-white/5"
                   style={{ color: '#B0B0B0' }}
                 >
                   <PencilIcon className="h-4 w-4" />
                   <span className="text-sm">Update Profile</span>
-                </button>
+                </Link>
               </div>
             </div>
           )}
@@ -440,8 +440,7 @@ const Applications = () => {
                   className="w-full pl-10 pr-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
                   style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                    color: '#FFFFFF',
-                    focusRingColor: '#00FF84'
+                    color: '#FFFFFF'
                   }}
                 />
               </div>
@@ -454,15 +453,14 @@ const Applications = () => {
                   className="appearance-none px-4 py-3 pr-10 rounded-lg border-0 focus:outline-none focus:ring-2"
                   style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                    color: '#FFFFFF',
-                    focusRingColor: '#00FF84'
+                    color: '#FFFFFF'
                   }}
                 >
-                  <option value="all">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="interview">Interview</option>
-                  <option value="accepted">Accepted</option>
-                  <option value="rejected">Rejected</option>
+                  <option value="all" style={{ color: '#000000' }}>All Status</option>
+                  <option value="pending" style={{ color: '#000000' }}>Pending</option>
+                  <option value="interview" style={{ color: '#000000' }}>Interview</option>
+                  <option value="accepted" style={{ color: '#000000' }}>Accepted</option>
+                  <option value="rejected" style={{ color: '#000000' }}>Rejected</option>
                 </select>
                 <ChevronDownIcon className="absolute right-3 top-3 h-5 w-5 pointer-events-none" style={{ color: '#B0B0B0' }} />
               </div>
@@ -475,14 +473,13 @@ const Applications = () => {
                   className="appearance-none px-4 py-3 pr-10 rounded-lg border-0 focus:outline-none focus:ring-2"
                   style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                    color: '#FFFFFF',
-                    focusRingColor: '#00FF84'
+                    color: '#FFFFFF'
                   }}
                 >
-                  <option value="newest">Newest First</option>
-                  <option value="oldest">Oldest First</option>
-                  <option value="company">Company A-Z</option>
-                  <option value="position">Position A-Z</option>
+                  <option value="newest" style={{ color: '#000000' }}>Newest First</option>
+                  <option value="oldest" style={{ color: '#000000' }}>Oldest First</option>
+                  <option value="company" style={{ color: '#000000' }}>Company A-Z</option>
+                  <option value="position" style={{ color: '#000000' }}>Position A-Z</option>
                 </select>
                 <ChevronDownIcon className="absolute right-3 top-3 h-5 w-5 pointer-events-none" style={{ color: '#B0B0B0' }} />
               </div>
@@ -509,8 +506,8 @@ const Applications = () => {
                   }
                 </p>
                 {user?.role === 'user' && applications.length === 0 && (
-                  <button
-                    onClick={() => handleNavigation('/jobs')}
+                  <Link
+                    to="/jobs"
                     className="inline-flex items-center px-6 py-3 rounded-lg font-medium transition-all duration-200"
                     style={{ backgroundColor: '#00FF84', color: '#000000' }}
                     onMouseEnter={(e) => e.target.style.backgroundColor = '#00E676'}
@@ -518,7 +515,7 @@ const Applications = () => {
                   >
                     <MagnifyingGlassIcon className="h-5 w-5 mr-2" />
                     Browse Jobs
-                  </button>
+                  </Link>
                 )}
               </div>
             ) : (
@@ -538,24 +535,24 @@ const Applications = () => {
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg mb-1" style={{ color: '#FFFFFF' }}>
-                          {application.job?.title || 'Job Title'}
+                          {application.job?.title || application.job_title || 'Job Title'}
                         </h3>
                         <p className="mb-2" style={{ color: '#B0B0B0' }}>
-                          {application.job?.company?.name || 'Company Name'}
+                          {application.job?.company?.name || application.company_name || 'Company Name'}
                         </p>
-                        <div className="flex items-center space-x-4 text-sm" style={{ color: '#B0B0B0' }}>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm" style={{ color: '#B0B0B0' }}>
                           <div className="flex items-center">
                             <MapPinIcon className="h-4 w-4 mr-1" />
-                            {application.job?.location || 'Location not specified'}
+                            {application.job?.location || application.location || 'Location not specified'}
                           </div>
                           <div className="flex items-center">
                             <CalendarIcon className="h-4 w-4 mr-1" />
-                            Applied {new Date(application.applied_date || application.created_at).toLocaleDateString()}
+                            Applied {formatDate(application.applied_date || application.created_at || application.date_applied)}
                           </div>
-                          {user?.role !== 'user' && application.applicant && (
+                          {user?.role !== 'user' && (
                             <div className="flex items-center">
                               <UserIcon className="h-4 w-4 mr-1" />
-                              {application.applicant.full_name || application.applicant.email}
+                              {getApplicantName(application)}
                             </div>
                           )}
                         </div>
@@ -575,10 +572,10 @@ const Applications = () => {
                               color: getStatusColor(application.status)
                             }}
                           >
-                            <option value="pending">Pending</option>
-                            <option value="interview">Interview</option>
-                            <option value="accepted">Accepted</option>
-                            <option value="rejected">Rejected</option>
+                            <option value="pending" style={{ color: '#000000' }}>Pending</option>
+                            <option value="interview" style={{ color: '#000000' }}>Interview</option>
+                            <option value="accepted" style={{ color: '#000000' }}>Accepted</option>
+                            <option value="rejected" style={{ color: '#000000' }}>Rejected</option>
                           </select>
                         ) : (
                           <div 
@@ -596,15 +593,15 @@ const Applications = () => {
 
                       {/* Actions */}
                       <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleNavigation(`/applications/${application.id}`)}
+                        <Link
+                          to={`/applications/${application.id}`}
                           className="p-2 rounded-lg transition-colors duration-200 hover:bg-white/10"
                           title="View Details"
                         >
                           <EyeIcon className="h-5 w-5" style={{ color: '#00FF84' }} />
-                        </button>
+                        </Link>
                         
-                        {user?.role === 'user' && application.status?.toLowerCase() === 'pending' && (
+                        {user?.role === 'user' && (application.status?.toLowerCase() === 'pending' || !application.status) && (
                           <button
                             onClick={() => handleWithdrawApplication(application.id)}
                             className="p-2 rounded-lg transition-colors duration-200 hover:bg-white/10"

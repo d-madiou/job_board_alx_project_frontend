@@ -16,7 +16,7 @@ const JobDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imageError, setImageError] = useState(false);
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://jobboardalxprojectbackend-production.up.railway.app';
 
   // Fetch job details
   useEffect(() => {

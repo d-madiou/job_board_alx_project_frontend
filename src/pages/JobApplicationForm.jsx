@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { BriefcaseIcon } from '@heroicons/react/24/outline';
-import { useAuth } from '../contexts/auth'; // Import the auth context
+import { useAuth } from '../contexts/auth';
 
 const JobApplicationForm = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { user, getAuthToken } = useAuth(); // Use auth context
+  const { user, getAuthToken } = useAuth();
   const [job, setJob] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,7 +23,7 @@ const JobApplicationForm = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [submitStatus, setSubmitStatus] = useState(null);
-  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://jobboardalxprojectbackend-production.up.railway.app';
 
   // Auto-fill email from user context if available
   useEffect(() => {

@@ -16,6 +16,7 @@ import JobApplicationForm from './pages/JobApplicationForm';
 import UserProfile from './pages/UserProfile';
 import Applications from './pages/Applications';
 import PostJob from './pages/PostJob';
+import Footer from './components/layout/Footer';
 
 function App() {
   return (
@@ -50,7 +51,9 @@ function App() {
             <Route path="/:slug/" element={<JobDetails />} />
             <Route path="/:slug/apply/" element={<JobApplicationForm />} />
 
+
           </Routes>
+          <Footer/>
         </div>
       </AuthProvider>
     </Router>

@@ -48,6 +48,20 @@ const PostJob = () => {
     company: ''
   });
 
+  // Default categories fallback
+  const defaultCategories = [
+    { id: 1, name: 'Software Development' },
+    { id: 2, name: 'Data Science' },
+    { id: 3, name: 'Design' },
+    { id: 4, name: 'Marketing' },
+    { id: 5, name: 'Sales' },
+    { id: 6, name: 'Customer Support' },
+    { id: 7, name: 'Human Resources' },
+    { id: 8, name: 'Finance' },
+    { id: 9, name: 'Operations' },
+    { id: 10, name: 'Other' }
+  ];
+
   const sidebarItems = [
     { id: 'dashboard', label: 'Dashboard', icon: UserIcon },
     { id: 'profile', label: 'Profile', icon: UserIcon },
@@ -60,23 +74,34 @@ const PostJob = () => {
       return;
     }
 
-    const fetchCategoriesAndCompany = async () => {
+    const fetchData = async () => {
       try {
-        const [categoriesResponse, companyResponse] = await Promise.all([
-          api.get('/categories/'),
-          api.get('/companies/my-company/') // Assuming an endpoint for fetching the user's company
-        ]);
-        setCategories(categoriesResponse.data.results || categoriesResponse.data || []);
-        if (companyResponse.data) {
-          setFormData(prev => ({ ...prev, company: companyResponse.data.id }));
+        try {
+          const categoriesResponse = await api.get('/categories/');
+          setCategories(categoriesResponse.data.results || categoriesResponse.data || []);
+        } catch (categoriesError) {
+          console.warn('Categories endpoint not available, using default categories');
+          setCategories(defaultCategories);
         }
-      // eslint-disable-next-line no-unused-vars
+
+        try {
+          const companyResponse = await api.get('/companies/my-company/');
+          if (companyResponse.data) {
+            setFormData(prev => ({ ...prev, company: companyResponse.data.id }));
+          }
+        } catch (companyError) {
+          console.warn('Company endpoint not available, company field will be handled in backend');
+        }
+
       } catch (err) {
-        setError('Failed to fetch categories or company data');
+        console.error('Error fetching initial data:', err);
+        if (categories.length === 0) {
+          setCategories(defaultCategories);
+        }
       }
     };
 
-    fetchCategoriesAndCompany();
+    fetchData();
   }, [isAuthenticated, user?.role, navigate]);
 
   const handleChange = (e) => {
@@ -103,17 +128,23 @@ const PostJob = () => {
         category: formData.category || null
       };
 
-      await api.post('/jobs/create/', payload);
+     
+      if (!payload.company) {
+        delete payload.company;
+      }
+
+      const response = await api.post('/jobs/create/', payload);
       alert('Job posted successfully!');
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to post job');
+      console.error('Error posting job:', err);
+      setError(err.response?.data?.detail || err.response?.data?.message || 'Failed to post job. Please check all required fields.');
     } finally {
       setLoading(false);
     }
   };
 
-  if (loading) {
+  if (loading && categories.length === 0) {
     return (
       <div 
         className="min-h-screen flex items-center justify-center"
@@ -122,19 +153,6 @@ const PostJob = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: '#00FF84' }}></div>
           <p style={{ color: '#FFFFFF' }}>Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div 
-        className="min-h-screen flex items-center justify-center"
-        style={{ backgroundColor: '#0C1B33', fontFamily: 'Poppins, sans-serif' }}
-      >
-        <div className="text-center">
-          <p style={{ color: '#00FF84' }} className="text-lg">{error}</p>
         </div>
       </div>
     );
@@ -194,6 +212,21 @@ const PostJob = () => {
             </p>
           </div>
 
+          {/* Error Display */}
+          {error && (
+            <div 
+              className="mb-6 p-4 rounded-lg border-l-4"
+              style={{ 
+                backgroundColor: 'rgba(239, 68, 68, 0.1)', 
+                borderLeftColor: '#EF4444',
+                color: '#EF4444'
+              }}
+            >
+              <p className="font-medium">Error posting job:</p>
+              <p className="text-sm mt-1">{error}</p>
+            </div>
+          )}
+
           {/* Form */}
           <div 
             className="rounded-xl p-6"
@@ -214,8 +247,7 @@ const PostJob = () => {
                   className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
                   style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                    color: '#FFFFFF',
-                    focusRingColor: '#00FF84'
+                    color: '#FFFFFF'
                   }}
                   placeholder="e.g. Senior Software Engineer"
                 />
@@ -233,13 +265,14 @@ const PostJob = () => {
                   className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
                   style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                    color: '#FFFFFF',
-                    focusRingColor: '#00FF84'
+                    color: '#FFFFFF'
                   }}
                 >
                   <option value="">Select a category</option>
                   {categories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    <option key={cat.id} value={cat.id} style={{ color: '#000000' }}>
+                      {cat.name}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -255,11 +288,10 @@ const PostJob = () => {
                   onChange={handleChange}
                   required
                   rows="5"
-                  className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
+                  className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2 resize-y"
                   style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                    color: '#FFFFFF',
-                    focusRingColor: '#00FF84'
+                    color: '#FFFFFF'
                   }}
                   placeholder="Describe the job role and responsibilities..."
                 />
@@ -275,11 +307,10 @@ const PostJob = () => {
                   value={formData.requirements}
                   onChange={handleChange}
                   rows="4"
-                  className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
+                  className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2 resize-y"
                   style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                    color: '#FFFFFF',
-                    focusRingColor: '#00FF84'
+                    color: '#FFFFFF'
                   }}
                   placeholder="List the job requirements..."
                 />
@@ -295,11 +326,10 @@ const PostJob = () => {
                   value={formData.responsibilities}
                   onChange={handleChange}
                   rows="4"
-                  className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
+                  className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2 resize-y"
                   style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                    color: '#FFFFFF',
-                    focusRingColor: '#00FF84'
+                    color: '#FFFFFF'
                   }}
                   placeholder="List the job responsibilities..."
                 />
@@ -315,11 +345,10 @@ const PostJob = () => {
                   value={formData.benefits}
                   onChange={handleChange}
                   rows="4"
-                  className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
+                  className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2 resize-y"
                   style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                    color: '#FFFFFF',
-                    focusRingColor: '#00FF84'
+                    color: '#FFFFFF'
                   }}
                   placeholder="List the job benefits..."
                 />
@@ -339,8 +368,7 @@ const PostJob = () => {
                     className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
                     style={{ 
                       backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                      color: '#FFFFFF',
-                      focusRingColor: '#00FF84'
+                      color: '#FFFFFF'
                     }}
                     placeholder="e.g. San Francisco, CA"
                   />
@@ -356,13 +384,12 @@ const PostJob = () => {
                     className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
                     style={{ 
                       backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                      color: '#FFFFFF',
-                      focusRingColor: '#00FF84'
+                      color: '#FFFFFF'
                     }}
                   >
-                    <option value="on_site">On Site</option>
-                    <option value="hybrid">Hybrid</option>
-                    <option value="fully_remote">Fully Remote</option>
+                    <option value="on_site" style={{ color: '#000000' }}>On Site</option>
+                    <option value="hybrid" style={{ color: '#000000' }}>Hybrid</option>
+                    <option value="fully_remote" style={{ color: '#000000' }}>Fully Remote</option>
                   </select>
                 </div>
               </div>
@@ -393,15 +420,14 @@ const PostJob = () => {
                     className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
                     style={{ 
                       backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                      color: '#FFFFFF',
-                      focusRingColor: '#00FF84'
+                      color: '#FFFFFF'
                     }}
                   >
-                    <option value="full_time">Full Time</option>
-                    <option value="part_time">Part Time</option>
-                    <option value="contract">Contract</option>
-                    <option value="freelance">Freelance</option>
-                    <option value="internship">Internship</option>
+                    <option value="full_time" style={{ color: '#000000' }}>Full Time</option>
+                    <option value="part_time" style={{ color: '#000000' }}>Part Time</option>
+                    <option value="contract" style={{ color: '#000000' }}>Contract</option>
+                    <option value="freelance" style={{ color: '#000000' }}>Freelance</option>
+                    <option value="internship" style={{ color: '#000000' }}>Internship</option>
                   </select>
                 </div>
                 <div>
@@ -415,14 +441,13 @@ const PostJob = () => {
                     className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
                     style={{ 
                       backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                      color: '#FFFFFF',
-                      focusRingColor: '#00FF84'
+                      color: '#FFFFFF'
                     }}
                   >
-                    <option value="entry_level">Entry Level</option>
-                    <option value="mid_level">Mid Level</option>
-                    <option value="senior_level">Senior Level</option>
-                    <option value="executive">Executive</option>
+                    <option value="entry_level" style={{ color: '#000000' }}>Entry Level</option>
+                    <option value="mid_level" style={{ color: '#000000' }}>Mid Level</option>
+                    <option value="senior_level" style={{ color: '#000000' }}>Senior Level</option>
+                    <option value="executive" style={{ color: '#000000' }}>Executive</option>
                   </select>
                 </div>
               </div>
@@ -441,8 +466,7 @@ const PostJob = () => {
                     className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
                     style={{ 
                       backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                      color: '#FFFFFF',
-                      focusRingColor: '#00FF84'
+                      color: '#FFFFFF'
                     }}
                     placeholder="e.g. 50000"
                   />
@@ -459,8 +483,7 @@ const PostJob = () => {
                     className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
                     style={{ 
                       backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                      color: '#FFFFFF',
-                      focusRingColor: '#00FF84'
+                      color: '#FFFFFF'
                     }}
                     placeholder="e.g. 80000"
                   />
@@ -476,13 +499,12 @@ const PostJob = () => {
                     className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
                     style={{ 
                       backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                      color: '#FFFFFF',
-                      focusRingColor: '#00FF84'
+                      color: '#FFFFFF'
                     }}
                   >
-                    <option value="hourly">Hourly</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="yearly">Yearly</option>
+                    <option value="hourly" style={{ color: '#000000' }}>Hourly</option>
+                    <option value="monthly" style={{ color: '#000000' }}>Monthly</option>
+                    <option value="yearly" style={{ color: '#000000' }}>Yearly</option>
                   </select>
                 </div>
               </div>
@@ -514,8 +536,7 @@ const PostJob = () => {
                     className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
                     style={{ 
                       backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                      color: '#FFFFFF',
-                      focusRingColor: '#00FF84'
+                      color: '#FFFFFF'
                     }}
                     placeholder="e.g. https://company.com/apply"
                   />
@@ -532,8 +553,7 @@ const PostJob = () => {
                     className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
                     style={{ 
                       backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                      color: '#FFFFFF',
-                      focusRingColor: '#00FF84'
+                      color: '#FFFFFF'
                     }}
                     placeholder="e.g. jobs@company.com"
                   />
@@ -566,8 +586,7 @@ const PostJob = () => {
                   className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
                   style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                    color: '#FFFFFF',
-                    focusRingColor: '#00FF84'
+                    color: '#FFFFFF'
                   }}
                   placeholder="e.g. JavaScript, React, Python"
                 />
@@ -589,8 +608,7 @@ const PostJob = () => {
                   className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
                   style={{ 
                     backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                    color: '#FFFFFF',
-                    focusRingColor: '#00FF84'
+                    color: '#FFFFFF'
                   }}
                 />
               </div>
@@ -608,14 +626,13 @@ const PostJob = () => {
                     className="w-full px-4 py-3 rounded-lg border-0 focus:outline-none focus:ring-2"
                     style={{ 
                       backgroundColor: 'rgba(255, 255, 255, 0.1)', 
-                      color: '#FFFFFF',
-                      focusRingColor: '#00FF84'
+                      color: '#FFFFFF'
                     }}
                   >
-                    <option value="draft">Draft</option>
-                    <option value="active">Active</option>
-                    <option value="paused">Paused</option>
-                    <option value="closed">Closed</option>
+                    <option value="draft" style={{ color: '#000000' }}>Draft</option>
+                    <option value="active" style={{ color: '#000000' }}>Active</option>
+                    <option value="paused" style={{ color: '#000000' }}>Paused</option>
+                    <option value="closed" style={{ color: '#000000' }}>Closed</option>
                   </select>
                 </div>
                 <div>
@@ -660,9 +677,10 @@ const PostJob = () => {
                   disabled={loading}
                   className="px-6 py-3 rounded-lg font-medium transition-all duration-200"
                   style={{ 
-                    backgroundColor: '#00FF84', 
+                    backgroundColor: loading ? '#00CC6A' : '#00FF84', 
                     color: '#000000',
-                    opacity: loading ? 0.6 : 1
+                    opacity: loading ? 0.6 : 1,
+                    cursor: loading ? 'not-allowed' : 'pointer'
                   }}
                   onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#00E676')}
                   onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#00FF84')}

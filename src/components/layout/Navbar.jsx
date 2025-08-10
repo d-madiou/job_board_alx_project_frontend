@@ -89,15 +89,6 @@ const Navbar = () => {
             >
               Companies
             </Link>
-            <Link
-              to="/about"
-              className="font-bold transition-colors duration-200"
-              style={{ color: '#FFFFFF' }}
-              onMouseEnter={(e) => e.target.style.color = '#00FF84'}
-              onMouseLeave={(e) => e.target.style.color = '#FFFFFF'}
-            >
-              About
-            </Link>
           </div>
 
           {/* Search Bar */}
@@ -334,18 +325,7 @@ const Navbar = () => {
               >
                 Companies
               </Link>
-              <Link
-                to="/about"
-                className="block px-3 py-2 rounded-md font-bold transition-colors duration-200"
-                style={{ color: '#FFFFFF' }}
-                onMouseEnter={(e) => e.target.style.backgroundColor = 'rgba(0, 255, 132, 0.1)'}
-                onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                About
-              </Link>
 
-              {/* Mobile Post Job Button - Only for admin and employer */}
               {isAuthenticated && (user?.role === 'admin' || user?.role === 'employer') && (
                 <Link
                   to="/post-job"

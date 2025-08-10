@@ -34,12 +34,10 @@ const CompanyProfile = () => {
       try {
         setLoading(true);
         setError(null);
-        
-        // Fetch company details using slug
+      
         const companyResponse = await api.get(`/companies/${slug}/`);
         setCompany(companyResponse.data);
         
-        // Fetch company jobs
         const jobsResponse = await api.get(`/jobs/?company=${companyResponse.data.id}`);
         const jobsData = jobsResponse.data.results || jobsResponse.data;
         setJobs(Array.isArray(jobsData) ? jobsData : []);
@@ -140,8 +138,8 @@ const CompanyProfile = () => {
       {/* Hero Banner */}
       <div className="relative h-80 overflow-hidden">
         <img
-          src={company.cover_image || "/placeholder.svg?height=320&width=1200&text=Company+Cover"}
-          alt={`${company.name} cover`}
+          src={getCompanyLogoUrl(company) || "/placeholder.svg"}
+          alt={`${company.name} logo`}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>

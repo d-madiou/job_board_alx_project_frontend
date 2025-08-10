@@ -1,4 +1,3 @@
-// src/contexts/AuthContext.jsx
 import React, { useState, useEffect } from 'react';
 import { AuthContext } from './auth';
 import api from '../utils/api';
@@ -15,7 +14,7 @@ export const AuthProvider = ({ children }) => {
         const storedUser = JSON.parse(localStorage.getItem('user'));
         const accessToken = localStorage.getItem('access_token');
         const refreshToken = localStorage.getItem('refresh_token');
-        console.log('Stored tokens:', { accessToken, refreshToken }); // Debug
+        console.log('Stored tokens:', { accessToken, refreshToken });
         if (storedUser && accessToken && refreshToken) {
           setUser(storedUser);
           setIsAuthenticated(true);
@@ -33,12 +32,12 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (formData) => {
     try {
-      const response = await api.post('/auth/login/', { // Use custom /auth/login/
+      const response = await api.post('/auth/login/', { 
         email: formData.email,
         password: formData.password,
       });
-      console.log('Login response:', response.data); // Debug
-      const { user, tokens } = response.data; // Extract tokens object
+      console.log('Login response:', response.data); 
+      const { user, tokens } = response.data; 
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('access_token', tokens.access);
       localStorage.setItem('refresh_token', tokens.refresh);
@@ -66,8 +65,8 @@ export const AuthProvider = ({ children }) => {
         phone: formData.phone,
         location: formData.location,
       });
-      console.log('Register response:', response.data); // Debug
-      const { user, tokens } = response.data; // Extract tokens object
+      console.log('Register response:', response.data); 
+      const { user, tokens } = response.data; 
       localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('access_token', tokens.access);
       localStorage.setItem('refresh_token', tokens.refresh);
